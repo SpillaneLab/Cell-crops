@@ -8,7 +8,7 @@ Figure 1: A) Segmentation of membrane staining (left) used to get bounding recta
 Analysis performed using Fiji (Schindelin et al., 2012).
 1.	Copy the code (from browser or download as .txt) and paste into macro window as: 
      Plugins > New > Macro
-2.	Ensure the language is set to IJ1 Macro in the Language tab of the Macro window. 
+2.	Ensure the language is set to IJ1 Macro in the Language tab of the macro window. 
 3.	Save the macro using .ijm extension. 
 # How to use 
 1.	Adjust the method of segmentation as required – segmentation is required only to get bounding rectangle of the cell, not for quantification. 
