@@ -107,27 +107,27 @@
 		if (roiManager("count")>0) {
 			n = roiManager("count"); 
 			for (i=0; i<n; i++) {
-						//Save the image with ROI overlay
-						selectWindow("Channels");
-						run("Duplicate...", "duplicate");
-						roiManager("Show All");
-						//Save overlay/segmentation
-						overlay = basename + "_overlay";
-						saveAs("TIFF", outputDir2 + "/" + overlay);
-						//Iterate through all the ROIs/all the cells
-						roiManager("Select", i);
-						//Make segmentation bigger
-						run("Enlarge...", "enlarge=2");							
-						//Get bounding rectangle coordinates from the segmentation enlargement
-						Roi.getBounds(x, y, width, height);
-						//Crop
-						run("Crop");
-						//Save with ROI number in file title
-						cropname = basename + "_Cell_" + i + 1;
-						saveAs("TIFF", outputDir + "/" + cropname);
-						//Clear the results
-						run("Clear Results");
-						run("Close");
+				//Save the image with ROI overlay
+				selectWindow("Channels");
+				run("Duplicate...", "duplicate");
+				roiManager("Show All");
+				//Save overlay/segmentation
+				overlay = basename + "_overlay";
+				saveAs("TIFF", outputDir2 + "/" + overlay);
+				//Iterate through all the ROIs/all the cells
+				roiManager("Select", i);
+				//Make segmentation bigger
+				run("Enlarge...", "enlarge=2");							
+				//Get bounding rectangle coordinates from the segmentation enlargement
+				Roi.getBounds(x, y, width, height);
+				//Crop
+				run("Crop");
+				//Save with ROI number in file title
+				cropname = basename + "_Cell_" + i + 1;
+				saveAs("TIFF", outputDir + "/" + cropname);
+				//Clear the results
+				run("Clear Results");
+				run("Close");
 			}
 		}
 				
