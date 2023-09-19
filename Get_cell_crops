@@ -1,6 +1,6 @@
-	//This macro crops around individual cells of a multi-channel image 
+//This macro crops around individual cells of a multi-channel image 
 
-	//Select all of the relevant directories 
+//Select all of the relevant directories 
    
    dir = getDirectory("Choose an input directory");
    outputDir = getDirectory("Where to save cropped cells");
@@ -12,7 +12,7 @@
    n = 0;
    processFiles(dir);
 
-   //Open all of the files within subfolders 
+//Open all of the files within subfolders 
    
    function countFiles(dir) {
       list = getFileList(dir);
@@ -45,17 +45,17 @@
        		//Get the file name without extension 
        		imagesName=getTitle();
        		title = imagesName;
-			dotIndex = indexOf(title, ".");
-			basename = substring(title, 0, dotIndex); 
+		dotIndex = indexOf(title, ".");
+		basename = substring(title, 0, dotIndex); 
 			
-			//Set image properties 
-			getDimensions(width, height, channels, slices, frames);
-			run("Properties...", "channels=channels slices=slices frames=frames unit=µm pixel_width=0.11 pixel_height=0.11 voxel_depth=1.0000000");
+		//Set image properties 
+		getDimensions(width, height, channels, slices, frames);
+		run("Properties...", "channels=channels slices=slices frames=frames unit=µm pixel_width=0.11 pixel_height=0.11 voxel_depth=1.0000000");
        		
        		//Duplicate the original image and rename
        		run("Duplicate...", "duplicate");
        		
-			//Rename the image 
+		//Rename the image 
        		rename("Image"); 
        		
        		//Duplicate again so can easily save cells with all channels
@@ -71,10 +71,10 @@
        		selectWindow("C1-Image");
        		run("Duplicate...", " ");
        		setAutoThreshold("Triangle dark");
-			setOption("BlackBackground", true);
-			run("Convert to Mask");
-			run("Fill Holes");
-			run("Watershed");
+		setOption("BlackBackground", true);
+		run("Convert to Mask");
+		run("Fill Holes");
+		run("Watershed");
        		
        		//Rename to be the segmented image 
        		rename("Segmented Image");
@@ -84,58 +84,58 @@
        		rename("Reference"); 
        		
       		//Set the parameters for measuring and reference the channel used for segmentation
-			run("Set Measurements...", "area mean standard modal min perimeter shape integrated median redirect=Reference");	
+		run("Set Measurements...", "area mean standard modal min perimeter shape integrated median redirect=Reference");	
 				
        		//Analyse particles and filter ROI based on size, exclude cells touching the edge - change filtering as required
        		selectWindow("Segmented Image");
-			run("Analyze Particles...", "size=600-10000 pixel exclude add");
+		run("Analyze Particles...", "size=600-10000 pixel exclude add");
 			
-			//Select the image with all channels 
-			selectWindow("Channels");
+		//Select the image with all channels 
+		selectWindow("Channels");
+		
+		//If no ROIs, do nothing
+		if (roiManager("count")==0) {
+			//Save overlay as proof no ROIs
+			selectWindow("Channels"); 
+			run("Duplicate...", "duplicate");
+			run("Select None"); 
+			overlaynone = basename + "_overlay_none";
+			saveAs("TIFF", outputDir2 + "/" + overlaynone);
+		}
 			
-			//If no ROIs, do nothing
-			if (roiManager("count")==0) {
-				//Save overlay as proof no ROIs
-				selectWindow("Channels"); 
-				run("Duplicate...", "duplicate");
-				run("Select None"); 
-				overlaynone = basename + "_overlay_none";
-				saveAs("TIFF", outputDir2 + "/" + overlaynone);
+		// If ROIs, raw a rectangle on around each ROI and crop (keeping all channels)
+		if (roiManager("count")>0) {
+			n = roiManager("count"); 
+			for (i=0; i<n; i++) {
+						//Save the image with ROI overlay
+						selectWindow("Channels");
+						run("Duplicate...", "duplicate");
+						roiManager("Show All");
+						//Save overlay/segmentation
+						overlay = basename + "_overlay";
+						saveAs("TIFF", outputDir2 + "/" + overlay);
+						//Iterate through all the ROIs/all the cells
+						roiManager("Select", i);
+						//Make segmentation bigger
+						run("Enlarge...", "enlarge=2");							
+						//Get bounding rectangle coordinates from the segmentation enlargement
+						Roi.getBounds(x, y, width, height);
+						//Crop
+						run("Crop");
+						//Save with ROI number in file title
+						cropname = basename + "_Cell_" + i + 1;
+						saveAs("TIFF", outputDir + "/" + cropname);
+						//Clear the results
+						run("Clear Results");
+						run("Close");
 			}
-			
-			// If ROIs, raw a rectangle on around each ROI and crop (keeping all channels)
-			if (roiManager("count")>0) {
-				n = roiManager("count"); 
-				for (i=0; i<n; i++) {
-							//Save the image with ROI overlay
-							selectWindow("Channels");
-							run("Duplicate...", "duplicate");
-							roiManager("Show All");
-							//Save overlay/segmentation
-							overlay = basename + "_overlay";
-							saveAs("TIFF", outputDir2 + "/" + overlay);
-							//Iterate through all the ROIs/all the cells
-							roiManager("Select", i);
-							//Make segmentation bigger
-							run("Enlarge...", "enlarge=2");							
-							//Get bounding rectangle coordinates from the segmentation enlargement
-							Roi.getBounds(x, y, width, height);
-							//Crop
-							run("Crop");
-							//Save with ROI number in file title
-							cropname = basename + "_Cell_" + i + 1;
-							saveAs("TIFF", outputDir + "/" + cropname);
-							//Clear the results
-							run("Clear Results");
-							run("Close");
-				}
-			}
+		}
 				
-				//Clear the ROI manager
-				roiManager("reset");
-				
-				//Close everything
-				run("Close All");
+		//Clear the ROI manager
+		roiManager("reset");
+		
+		//Close everything
+		run("Close All");
        }
   }
 
